@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
-import MainContent from './components/home/main';
 import ErrorBoundary from './ErrorBoundary';
-import Container from './components/home/container';
 import DashboardApp from 'dashboard/DashboardApp';
-import NotFound from './not-found';
+import NotFound from './presentation/pages/not-found/not-found';
+import MainContent from './presentation/pages/home';
+import Container from './presentation/components/home/container';
 
 function App() {
 

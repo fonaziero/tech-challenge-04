@@ -3,7 +3,8 @@ import BannerModal from '@shared/images/Ilustração cadastro.png';
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../UI/modal";
 import FormInput from "../../../UI/inputs/input";
-import { handleRequest } from "@shared/utils/fetch-api";
+import { loginUser } from "../../../../../usecases/user/loginUser";
+import { saveUser } from "../../../../../infrastructure/storage/UserStorage";
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -24,55 +25,29 @@ const LoginModal: React.FC<LoginModalProps> = ({
     const isFormValid = email && password;
 
     const handleFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isFormValid) return;
-
-        setLoading(true);
-        setError('');
-        
-        try {
-            const response = await handleRequest('user/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.message || 'Erro ao fazer login');
-            }
-            if(data.result.token){
-                const userInfo = await handleRequest('account', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${data.result.token}`,
-                    },
-                })
-                const dataInfo = await userInfo.json();
-
-                localStorage.setItem('user', JSON.stringify({
-                    id: dataInfo.result.account[0].userId,
-                    accountId: dataInfo.result.account[0].id,
-                    name: dataInfo.result.cards[0].name,
-                    email: email,
-                    balance: +dataInfo.result.cards[0].cvc,
-                    transationType: dataInfo.result.cards[0].type,
-                    token: data.result.token
-                }));
-                onClose();
-                navigate('/dashboard');
-            }
-
-        } catch (err) {
-            console.error('Erro ao fazer a requisição:', err);
-            setError('Erro ao conectar ao servidor');
-        } finally {
-            setLoading(false);
+      e.preventDefault();
+      if (!isFormValid) return;
+    
+      setLoading(true);
+      setError('');
+    
+      try {
+        const user = await loginUser(email, password);
+        if (!user) {
+          setError('Token inválido ou não recebido.');
+          return;
         }
+        saveUser(user);
+        onClose();
+        navigate('/dashboard');
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Erro ao conectar ao servidor');
+      } finally {
+        setLoading(false);
+      }
     };
+    
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} height="100vh" width="792px" hasFooter={false}>

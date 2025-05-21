@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../shared/enviroments/.env') });
 export default defineConfig({
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, '../shared'),
     },
   },
@@ -25,18 +26,18 @@ export default defineConfig({
       name: 'host',
       filename: 'remoteEntry.js',
       remotes: {
-        dashboard: 'http://54.86.79.191:3002/assets/remoteEntry.js',
+        dashboard: 'http://localhost:3002/assets/remoteEntry.js',
       },
       exposes: {
-        './Button': './src/components/UI/buttons/button/button',
-        './CircleButton': './src/components/UI/buttons/circleButton/index',
-        './Header': './src/components/UI/header/index',
-        './Input': './src/components/UI/inputs/input/index',
-        './Select': './src/components/UI/inputs/select/index',
-        './Menu': './src/components/UI/menu/index',
-        './Modal': './src/components/UI/modal/index',
-        './SearchBar': './src/components/UI/inputs/searchBar/index',
-        './NotFound': './src/not-found',
+        './Button': './src/presentation/components/UI/buttons/button/button',
+        './CircleButton': './src/presentation/components/UI/buttons/circleButton/index',
+        './Header': './src/presentation/components/UI/header/index',
+        './Input': './src/presentation/components/UI/inputs/input/index',
+        './Select': './src/presentation/components/UI/inputs/select/index',
+        './Menu': './src/presentation/components/UI/menu/index',
+        './Modal': './src/presentation/components/UI/modal/index',
+        './SearchBar': './src/presentation/components/UI/inputs/searchBar/index',
+        './NotFound': './src/presentation/pages/not-found/not-found',
       },
       shared: [
         'react',
@@ -47,7 +48,9 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
+    cssCodeSplit: false,
     minify: false,
+    assetsInlineLimit: 32768,
   },
   server: {
     port: 3001,

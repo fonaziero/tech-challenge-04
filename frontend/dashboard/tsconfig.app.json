@@ -4,6 +4,9 @@
     "paths": {
       "@shared/*": [
         "../shared/*"
+      ],
+      "@/*" : [
+        "./src"
       ]
     },
     "allowSyntheticDefaultImports": true,
@@ -17,14 +20,12 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
-    /* Resolva os módulos corretamente */
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

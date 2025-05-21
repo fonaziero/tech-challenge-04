@@ -10,3 +10,12 @@ export const getStoredUser = (router: any): User | null => {
   }
   return storedUser;
 };
+
+export const getAuthenticatedUser = (
+  setError: (msg: string) => void,
+  router: any
+): User | null => {
+  const user = getStoredUser(router);
+  if (!user) setError("Usuário não autenticado.");
+  return user;
+};

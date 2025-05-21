@@ -1,5 +1,5 @@
 import React from 'react';
-import Container from './components/home/container';
+import Container from './presentation/components/home/container';
 
 interface ErrorBoundaryState {
   hasError: boolean;

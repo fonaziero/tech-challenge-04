@@ -9,6 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, '../shared/enviroments/.env') });
 export default defineConfig({
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, './src'),
       '@shared': path.resolve(__dirname, '../shared'),
       '@dashboard': path.resolve(__dirname, '../dashboard/src'),
     },
@@ -16,7 +17,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/styles/global.css";`, // Se usar variáveis globais do Tailwind
+        additionalData: `@import "@/styles/global.css";`,
       },
     },
   },
@@ -31,7 +32,7 @@ export default defineConfig({
       name: 'dashboard',
       filename: 'remoteEntry.js',
       remotes: {
-        host: 'http://54.86.79.191:3001/assets/remoteEntry.js'
+        host: 'http://localhost:3001/assets/remoteEntry.js'
       },
       exposes: {
         './DashboardApp': './src/App',
@@ -45,13 +46,14 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
+    cssCodeSplit: false,
     minify: false,
     assetsInlineLimit: 32768,
   },
   server: {
     port: 3002,
     cors: {
-      origin: 'http://54.86.79.191:3001',
+      origin: 'http://localhost:3001',
       methods: ['GET', 'POST', 'OPTIONS'],
       allowedHeaders: ['Origin', 'Content-Type', 'Accept'],
     },

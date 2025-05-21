@@ -1,5 +1,5 @@
 import { useState } from "react";
-import '../../../../styles/dropdown-select.module.css';
+import '../../../../../styles/dropdown-select.module.css';
 
 type Option = {
     value: string;

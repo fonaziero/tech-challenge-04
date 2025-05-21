@@ -1,292 +1,140 @@
-# 📦 Tech Challenge 02 - Estrutura e Configurações dos Microfrontends
+# 📦 Tech Challenge Fase 4 – Microfrontend Architecture
 
-Este projeto utiliza uma arquitetura de microfrontends composta pelos módulos `host` e `dashboard`, localizados na pasta `frontend`. Aqui estão os detalhes sobre suas configurações e estrutura. 🛠️
+Este projeto adota uma arquitetura moderna baseada em **microfrontends**, dividida em:
 
----
-
-## 🗂️ Estrutura do Projeto
-
-### Diretórios principais:
-
-- 📂 `backend/`: Contém o backend da aplicação com APIs e integração ao banco de dados.
-- 📂 `frontend/`: Contém os microfrontends:
-  - 🖥️ `dashboard/`: O frontend secundário exibindo gráficos e widgets 📊.
-  - 🖥️ `host/`: O frontend principal, orquestrando os módulos 🔗.
-  - 🌐 `shared/`: Recursos compartilhados entre os microfrontends, como interfaces e estilos globais 🎨.
+* 🖥️ `host`: aplicação principal que orquestra os módulos remotos
+* 📊 `dashboard`: microfrontend secundário responsável por transações
+* 🌐 `shared`: recursos compartilhados entre os frontends
+* ⚙️ `backend`: API Node.js e base de dados MongoDB
 
 ---
 
-## 🖥️ Microfrontend: Host
-
-O módulo `host` é responsável por hospedar os microfrontends e gerenciar a navegação 🧭.
-
-### 📋 Estrutura:
+## 🗂️ Estrutura Geral
 
 ```
-frontend/host
-|-- 📁 dist/
-|-- 📁 node_modules/
-|-- 📁 public/
-|-- 📁 src/
-|   |-- 📂 components/
-|   |-- 📂 interfaces/
-|   |-- 📂 styles/
-|   |-- 📂 types/
-|   |   |-- 📄 App.css
-|   |   |-- 📄 App.tsx
-|   |   |-- 📄 main.tsx
-|   |   \-- 📄 vite-env.d.ts
-|-- 📄 .gitignore
-|-- 📄 Dockerfile
-|-- 📄 eslint.config.js
-|-- 📄 index.html
-|-- 📄 nginx.conf
-|-- 📄 package.json
-|-- 📄 postcss.config.cjs
-|-- 📄 tailwind.config.js
-|-- 📄 tsconfig.app.json
-|-- 📄 tsconfig.json
-|-- 📄 tsconfig.node.json
-|-- 📄 vite.config.ts
+├── backend
+├── frontend
+│   ├── dashboard
+│   ├── host
+│   └── shared
+├── docker-compose.yml
 ```
 
-### 🛠️ `package.json` do Host:
+### 📁 `frontend/host`
 
-```json
-{
-  "name": "host",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite --port 3001 --strictPort",
-    "start": "tsc -b && vite build && vite preview --port 3001 --strictPort",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview --port 3001 --strictPort"
-  },
-  "dependencies": {
-    "@originjs/vite-plugin-federation": "^1.3.7",
-    "chart.js": "^4.4.7",
-    "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
-    "hamburger-react": "^2.5.2",
-    "react": "^18.3.1",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.1.1",
-    "vite-tsconfig-paths": "^5.1.4",
-    "postcss": "^8.5.1",
-    "tailwindcss": "^3.4.17",
-    "autoprefixer": "^10.4.20"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@svgr/rollup": "^8.1.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.17.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
-    "globals": "^15.14.0",
-    "typescript": "~5.6.2",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
-  }
+* Gerencia autenticação e navegação principal
+* Compartilha componentes comuns via Module Federation (botões, inputs, modais, etc.)
+
+### 📁 `frontend/dashboard`
+
+* Exibe histórico de transações com scroll infinito
+* Permite editar e remover registros
+* Usa `usecases` para manter regras de negócio isoladas
+
+### 📁 `frontend/shared`
+
+* Interfaces (`User`, `Transaction`)
+* Imagens e estilos globais (Tailwind)
+* Utilitários comuns (`fetch-api`, `formatters`, etc.)
+
+### 📁 `backend`
+
+* API REST com endpoints para autenticação, conta e extrato
+* Banco MongoDB via Docker
+
+---
+
+## 🔌 Integração via Module Federation
+
+* Host importa componentes de `dashboard`
+* `dashboard` depende de módulos do `host` (botões, inputs, etc.)
+
+```ts
+remotes: {
+  dashboard: 'http://localhost:3002/assets/remoteEntry.js',
+}
+```
+
+```ts
+exposes: {
+  './Button': './src/components/UI/buttons/button/Button.tsx',
+  './Input': './src/components/UI/inputs/input/index.tsx',
+  './Modal': './src/components/UI/modal/index.tsx',
+  ...
 }
 ```
 
 ---
 
-## 🖥️ Microfrontend: Dashboard
+## 🚀 Execução do Projeto
 
-O módulo `dashboard` fornece componentes visuais e widgets que podem ser carregados no `host` 🔗.
-
-### 📋 Estrutura:
-
-```
-frontend/dashboard
-|-- 📁 dist/
-|-- 📁 node_modules/
-|-- 📁 public/
-|-- 📁 src/
-|   |-- 📂 assets/
-|   |-- 📂 components/
-|   |-- 📂 types/
-|   |-- 📂 utils/
-|   |   |-- 📄 App.css
-|   |   |-- 📄 App.tsx
-|   |   |-- main.tsx
-|   |   \-- 📄 vite-env.d.ts
-|-- 📄 .gitignore
-|-- 📄 Dockerfile
-|-- 📄 eslint.config.js
-|-- 📄 index.html
-|-- 📄 nginx.conf
-|-- 📄 package.json
-|-- 📄 postcss.config.cjs
-|-- 📄 tailwind.config.js
-|-- 📄 tsconfig.app.json
-|-- 📄 tsconfig.json
-|-- 📄 tsconfig.node.json
-|-- 📄 vite.config.ts
-```
-
-### 🛠️ `package.json` do Dashboard:
-
-```json
-{
-  "name": "dashboard",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --port 3002 --strictPort",
-    "start": "tsc -b && vite build && vite preview --port 3002 --strictPort",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview --port 3002"
-  },
-  "dependencies": {
-    "@originjs/vite-plugin-federation": "^1.3.7",
-    "chart.js": "^4.4.7",
-    "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
-    "hamburger-react": "^2.5.2",
-    "react-chartjs-2": "^5.3.0",
-    "react-router-dom": "^7.1.1",
-    "postcss": "^8.5.1",
-    "tailwindcss": "^3.4.17",
-    "autoprefixer": "^10.4.20"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/date-fns": "^2.5.3",
-    "@types/node": "^22.10.7",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.17.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
-    "globals": "^15.14.0",
-    "typescript": "~5.6.2",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  }
-}
-```
-
----
-
-## 🌐 Pasta Shared
-
-A pasta `shared` é utilizada para armazenar recursos que podem ser compartilhados entre o `host` e o `dashboard` 🔗. Ela inclui:
-
-### 📋 Estrutura:
-
-```
-frontend/shared
-|-- 📁 environments/
-|-- 📁 images/
-|-- 📁 interfaces/
-|-- 📁 tailwind/
-|-- 📁 utils/
-|-- 📄 .readme
-```
-
-Esses recursos ajudam a manter a consistência e reduzem a redundância de código entre os microfrontends 🚀.
-
----
-
-## 🛠️ Backend
-
-A pasta `backend` contém a API e a lógica de backend da aplicação ⚙️. Ela utiliza Node.js e inclui recursos como:
-
-### 📋 Estrutura:
-
-```
-backend/
-|-- 📁 node_modules/
-|-- 📁 src/
-|   |-- 📂 controller/
-|   |-- 📂 feature/
-|   |-- 📂 infra/
-|   |-- 📂 models/
-|-- 📄 Dockerfile
-|-- 📄 package.json
-|-- 📄 tsconfig.json
-```
-
-O backend é responsável por fornecer os dados e funcionalidades que alimentam os microfrontends 🧑‍💻.
-
----
-
-## 🐳 Docker
-
-O projeto utiliza `docker-compose` para gerenciar os containers dos módulos 🛳️. Aqui estão as principais etapas para iniciar o projeto:
-
-### 🚀 Comandos Principais:
-
-```bash
-# Iniciar os containers
-docker-compose up -d --build
-
-# Parar os containers
-docker-compose down
-
-# Limpar recursos não utilizados
-docker system prune -f
-```
-
-O `docker-compose.yml` está configurado para criar os seguintes containers:
-
-- 🖥️ `host`
-- 🖥️ `dashboard`
-- ⚙️ `backend`
-- 🗄️ `mongo` (banco de dados)
-
-
-## ▶️ Executando o Projeto
-
-### Opção 1: Utilizando Docker Compose
-
-Para rodar toda a aplicação de forma simples, execute o comando:
+### 🔁 Opção 1: Docker Compose (recomendado)
 
 ```bash
 docker-compose up -d --build
 ```
 
-### Opção 2: Executando os Projetos Manualmente
+### 🔧 Opção 2: Manual
 
-Se preferir rodar cada módulo separadamente, siga os passos abaixo:
+**Backend:**
 
-1. **Backend**:
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   ```
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-2. **Host** (Frontend Principal):
-   ```bash
-   cd frontend/host
-   npm install
-   npm run start
-   ```
+**Host:**
 
-3. **Dashboard** (Frontend Secundário):
-   ```bash
-   cd frontend/dashboard
-   npm install
-   npm run start
-   ```
+```bash
+cd frontend/host
+npm install
+npm run dev
+```
+
+**Dashboard:**
+
+```bash
+cd frontend/dashboard
+npm install
+npm run dev
+```
 
 ---
 
-Este README oferece uma visão geral do projeto. Consulte a documentação interna para mais detalhes sobre cada módulo 📚.
+## 🧠 Arquitetura Clean (Fase 4)
 
+Cada microfrontend segue a estrutura:
+
+```
+src/
+├── domain/         # Interfaces e entidades
+├── infrastructure/ # APIs, armazenamento local
+├── presentation/   # Componentes React e páginas
+├── usecases/       # Regras de negócio isoladas
+├── utils/          # Funções auxiliares (format, parse...)
+```
+
+---
+
+## 📚 Principais melhorias aplicadas
+
+* ✅ Separação em `usecases` para lógica de negócio (`updateTransaction`, `deleteTransaction`)
+* ✅ `UserStorageService` para persistência de sessão
+* ✅ `usePagination` e `useSearchFilter` para reatividade e performance
+* ✅ `getAuthenticatedUser()` garante segurança mínima no frontend
+* ✅ Suporte a Module Federation com Vite e React 18
+
+---
+
+## 📦 Tecnologias principais
+
+* React 18 + Vite 6 + TailwindCSS
+* Module Federation com `@originjs/vite-plugin-federation`
+* Docker + Docker Compose
+* Node.js + MongoDB
+* TypeScript + ESLint
+
+---
+
+> Projeto desenvolvido como parte da **Fase 4 do Tech Challenge POSTECH** 🚀

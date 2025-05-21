@@ -1,7 +1,7 @@
 
 type HeaderProps = {
-    color: string;
-    children: React.ReactNode;
+    color?: string;
+    children?: React.ReactNode;
 };
 
 const Header = ({color, children}: HeaderProps) => {

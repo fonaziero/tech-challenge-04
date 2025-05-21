@@ -1,4 +1,17 @@
+version: '3.8'
+
 services:
+  database:
+    image: mongo:5.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123
+
   backend:
     build:
       context: ./backend
@@ -24,6 +37,8 @@ services:
       - ./frontend/host:/app/host
       - ./frontend/shared:/app/shared
       - ../dashboard/src:/app/dashboard-src
+    depends_on:
+      - dashboard
 
   dashboard:
     build:
@@ -34,22 +49,6 @@ services:
     volumes:
       - ./frontend/dashboard:/app/dashboard
       - ./frontend/shared:/app/shared
-
-  shared:
-    image: node:20-alpine
-    volumes:
-      - ./frontend/shared:/app/shared
-
-  database:
-    image: mongo:5.0
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 123
 
 volumes:
   mongo_data:

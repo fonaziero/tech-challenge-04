@@ -10,5 +10,6 @@ export interface User {
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string;
+    transactionType?: string;
   }
   
